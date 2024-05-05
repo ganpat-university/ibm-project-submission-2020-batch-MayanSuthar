@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <style>
+#textInput {
+    border: 2px solid black;
+    border-bottom: 3px solid aqua;
+}
+
+.userText {
+    color: white;
+    font-family: monospace;
+    font-size: 17px;
+    text-align: right;
+    line-height: 30px;
+}
+.userText span {
+    background-color: #009688;
+    padding: 10px;
+    border-radius: 10px;
+}
+.botText {
+    color: white;
+    font-family: monospace;
+    font-size: 17px;
+    text-align: left;
+    line-height: 30px;
+}
+.botText span {
+    background-color: #ae312f;
+    padding: 5px;
+    border-radius: 10px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background-color: #edeff2;
+  font-family: "Calibri", "Roboto", sans-serif;
+}
+.chat_window {
+  position: absolute;
+  width: calc(100% - 20px);
+  height: 700px;
+  border-radius: 10px;
+  background-color: #fff;
+  left: 50%;
+  top: 50%;
+  transform: translateX(-50%) translateY(-50%);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+  background-color: #fff;
+  overflow: hidden;
+}
+
+
+
+.top_menu {
+  background-color: dimgrey;
+  width: 100%;
+  padding: 20px 0 15px;
+  box-shadow: 0 1px 30px rgba(0, 0, 0, 0.1);
+}
+.top_menu .buttons {
+  margin: 3px 0 0 20px;
+  position: absolute;
+}
+.top_menu .buttons .button {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 10px;
+  position: relative;
+}
+.top_menu .buttons .button.close {
+  background-color: #f5886e;
+}
+.top_menu .buttons .button.minimize {
+  background-color: #fdbf68;
+}
+.top_menu .buttons .button.maximize {
+  background-color: #a3d063;
+}
+.top_menu .title {
+  text-align: center;
+  color: #bcbdc0;
+  font-size: 20px;
+}
+
+.messages {
+  position: relative;
+  list-style: none;
+  padding: 20px 10px 0 10px;
+  margin: 0;
+  height: 500px;
+  overflow: scroll;
+}
+.messages .message {
+  clear: both;
+  overflow: hidden;
+  margin-bottom: 20px;
+  transition: all 0.5s linear;
+  opacity: 0;
+}
+.messages .message.left .avatar {
+  background-color: #f5886e;
+  float: left;
+}
+.messages .message.left .text_wrapper {
+  background-color: dimgrey;
+  margin-left: 20px;
+}
+.messages .message.left .text_wrapper::after, .messages .message.left .text_wrapper::before {
+  right: 100%;
+  border-right-color: dimgrey;
+}
+.messages .message.left .text {
+  color: whitesmoke;
+}
+.messages .message.left .avatar {
+  float: left;
+  width: 50px;
+  height: 50px;
+  background-image: url("data:image/png;base64,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");
+  background-size: cover;
+  border-radius: 50%;
+  margin-right: 10px;
+}
+
+.messages .message.right .text_wrapper {
+  background-color: #c7eafc;
+  margin-right: 20px;
+  float: right;
+}
+.messages .message.right .text_wrapper::after, .messages .message.right .text_wrapper::before {
+  left: 100%;
+  border-left-color: #c7eafc;
+}
+.messages .message.right .text {
+  color: #45829b;
+}
+.messages .message.appeared {
+  opacity: 1;
+}
+.messages .message .avatar {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  display: inline-block;
+}
+.messages .message .text_wrapper {
+  display: inline-block;
+  padding: 20px;
+  border-radius: 6px;
+  width: calc(100% - 85px);
+  min-width: 100px;
+  position: relative;
+}
+.messages .message .text_wrapper::after, .messages .message .text_wrapper:before {
+  top: 18px;
+  border: solid transparent;
+  content: " ";
+  height: 0;
+  width: 0;
+  position: absolute;
+  pointer-events: none;
+}
+.messages .message .text_wrapper::after {
+  border-width: 13px;
+  margin-top: 0px;
+}
+.messages .message .text_wrapper::before {
+  border-width: 15px;
+  margin-top: -2px;
+}
+.messages .message .text_wrapper .text {
+  font-size: 18px;
+  font-weight: 300;
+}
+
+.bottom_wrapper {
+  position: relative;
+  width: 100%;
+  background-color: #fff;
+  padding: 20px 20px;
+  position: absolute;
+  bottom: 0;
+}
+.bottom_wrapper .message_input_wrapper {
+  display: inline-block;
+  height: 50px;
+  border-radius: 25px;
+  border: 1px solid #bcbdc0;
+  width: calc(100% - 160px);
+  position: relative;
+  padding: 0 20px;
+}
+.bottom_wrapper .message_input_wrapper .message_input {
+  border: none;
+  height: 100%;
+  box-sizing: border-box;
+  width: calc(100% - 40px);
+  position: absolute;
+  outline-width: 0;
+  color: gray;
+}
+.bottom_wrapper .send_message {
+  width: 140px;
+  height: 50px;
+  display: inline-block;
+  border-radius: 50px;
+  background-color: dimgrey;
+  border: 2px solid dimgrey;
+  color: #fff;
+  cursor: pointer;
+  transition: all 0.2s linear;
+  text-align: center;
+  float: right;
+}
+.bottom_wrapper .send_message:hover {
+  color: dimgrey;
+  background-color: #fff;
+}
+.bottom_wrapper .send_message .text {
+  font-size: 18px;
+  font-weight: 300;
+  display: inline-block;
+  line-height: 48px;
+}
+
+.message_template {
+  display: none;
+}
+.left_button {
+    float: left;
+    margin-left: 20px;
+}
+ </style>
+
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+</head>
+
+
+
+
+<body>
+<div class="chat_window">
+
+    <div class="top_menu">
+      <div class="left_button">
+        <button id="redirectBtn" class="btn btn-primary">Go Back</button>
+        
+    </div>
+        <div class="title">ChatBot:</div>
+    </div>
+    <ul class="messages"></ul>
+    <div class="bottom_wrapper clearfix">
+        <div class="message_input_wrapper">
+            <input class="message_input" placeholder="Type your message here..." />
+        </div>
+        <div class="send_message">
+            <div class="icon"></div>
+            <div class="text">Send</div>
+        </div>
+        <!--
+        <button id="refreshBtn" class="btn btn-primary form-control" onclick="location.reload()">Refresh</button>
+        -->
+    </div>
+    <div class="message_template">
+    <li class="message">
+        <div class="avatar"></div>
+        <div class="text_wrapper">
+            <div class="text"></div>
+        </div>
+    </li>
+</div>
+
+</div>
+</div>
+
+
+<script>
+  document.getElementById("redirectBtn").onclick = function() {
+      window.location.href = "http://localhost:8501/";
+  };
+</script>
+
+
+<script>
+    (function () {
+    var Message;
+    Message = function (arg) {
+        this.text = arg.text, this.message_side = arg.message_side;
+        this.draw = function (_this) {
+            return function () {
+                var $message;
+                $message = $($('.message_template').clone().html());
+                $message.addClass(_this.message_side).find('.text').html(_this.text);
+                $('.messages').append($message);
+                return setTimeout(function () {
+                    return $message.addClass('appeared');
+                }, 0);
+            };
+        }(this);
+        return this;
+    };
+    $(function () {
+        var getMessageText, message_side, sendMessage;
+        message_side = 'right';
+        getMessageText = function () {
+            var $message_input;
+            $message_input = $('.message_input');
+            return $message_input.val();
+        };
+
+
+        sendMessage = function (text) {
+    var $messages, message;
+    if (text.trim() === '') {
+        return;
+    }
+    $('.message_input').val('');
+    $messages = $('.messages');
+
+    // Set message_side based on whether the message is from the user or chatbot
+    var message_side = 'right';
+
+    message = new Message({
+        text: text,
+        message_side: message_side
+    });
+
+// Draw user message
+    message.draw();
+
+// Call getResponse() to get the chatbot's response
+$.get("/get", { msg: text }).done(function(data) {
+    var botMessage = new Message({
+        text: data,
+        message_side: 'left'
+    });
+
+
+    // Draw bot message
+    botMessage.draw();
+    $messages.animate({ scrollTop: $messages.prop('scrollHeight') }, 300);
+});
+
+return $messages.animate({ scrollTop: $messages.prop('scrollHeight') }, 300);
+};
+
+        $('.send_message').click(function (e) {
+            return sendMessage(getMessageText());
+        });
+        $('.message_input').keyup(function (e) {
+            if (e.which === 13) {
+                return sendMessage(getMessageText());
+            }
+        });
+            // Add "Writing..." message
+    writingMessage = new Message({
+        text: 'Resume Analyzer Bot is here, how can I help you today?. Fluent in 95 languages, I am always ready to assist you quickly and efficiently. Just type!',
+        message_side: 'left'
+    });
+    writingMessage.draw();
+
+    });
+}.call(this));
+
+</script>
+
+
+</body>
+</html>
